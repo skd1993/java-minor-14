@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
@@ -13,24 +12,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 
-public class DESUtility {
-
-	public static void main(String[] args) {
-		try {
-                        
-			String key = "blackbeard93"; // needs to be at least 8 characters for DES
-
-			FileInputStream fis = new FileInputStream("original.txt");
-			FileOutputStream fos = new FileOutputStream("encrypted.txt");
-			encrypt(key, fis, fos);
-
-//			FileInputStream fis2 = new FileInputStream("encrypted.txt");
-//			FileOutputStream fos2 = new FileOutputStream("decrypted.txt");
-//			decrypt(key, fis2, fos2);
-		} catch (Throwable e) {
-			e.printStackTrace();
-		}
-	}
+public class DESUtility implements FileWork{
 
 	public static void encrypt(String key, InputStream is, OutputStream os) throws Throwable {
 		encryptOrDecrypt(key, Cipher.ENCRYPT_MODE, is, os);

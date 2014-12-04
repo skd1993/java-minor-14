@@ -137,6 +137,11 @@ public class MinorView extends FrameView {
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(minor.MinorApp.class).getContext().getResourceMap(MinorView.class);
         jTextField1.setText(resourceMap.getString("jTextField1.text")); // NOI18N
         jTextField1.setName("jTextField1"); // NOI18N
+        jTextField1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextField1ActionPerformed(evt);
+            }
+        });
 
         jTextField2.setText(resourceMap.getString("jTextField2.text")); // NOI18N
         jTextField2.setName("jTextField2"); // NOI18N
@@ -157,6 +162,11 @@ public class MinorView extends FrameView {
 
         jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
         jButton2.setName("jButton2"); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -262,14 +272,20 @@ public class MinorView extends FrameView {
             String user=jTextField1.getText();
             String pass=jTextField2.getText();
             Database minor=new Database();
-            ResultSet r;
+            ResultSet r, r2;
             
-            String sql;
+            String sql, sql3;
             sql = "select * from user where user=\""+user+"\" and pass=\""+pass+"\"";
             r=minor.getRS(sql);
+           
         try {
             if(r.next()){
-                JOptionPane.showMessageDialog(null, "user and pass are correct!");
+                
+                IP get_ip = new IP();
+                String ip_addr = get_ip.getIP();
+                String sql2 = "insert into info (user, ip) values ('"+user+"', '"+ip_addr+"')";
+                r2 = minor.getRS(sql2);
+                JOptionPane.showMessageDialog(null, "user and pass are correct!\nYour IP address is:" +ip_addr);
                 showEncryptOrDecrypt();
             }
             else
@@ -284,12 +300,16 @@ public class MinorView extends FrameView {
                     }
     }//GEN-LAST:event_jButton1MouseClicked
 
-   
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        jTextField1.setText(null);
+        jTextField2.setText(null);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
- 
-    
-    
-            
+    private void jTextField1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextField1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
@@ -309,9 +329,6 @@ public class MinorView extends FrameView {
     Statement stmt;
     ResultSet rs;
     //end of declaration
-    
-    
-    
     private final Timer messageTimer;
     private final Timer busyIconTimer;
     private final Icon idleIcon;

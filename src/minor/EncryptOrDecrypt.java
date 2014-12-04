@@ -6,13 +6,21 @@
 
 package minor;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import org.jdesktop.application.Action;
+import javax.swing.JOptionPane;
+import static minor.FileWork.in;
+import static minor.FileWork.key;
+import static minor.FileWork.out_des;
 
 /**
  *
  * @author brij
  */
-public class EncryptOrDecrypt extends javax.swing.JFrame {
+public class EncryptOrDecrypt extends javax.swing.JFrame implements FileWork {
 
     /**
      * Creates new form EncryptOrDecrypt
@@ -33,7 +41,6 @@ public class EncryptOrDecrypt extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -50,9 +57,11 @@ public class EncryptOrDecrypt extends javax.swing.JFrame {
         jButton2.setAction(actionMap.get("callNext")); // NOI18N
         jButton2.setText(resourceMap.getString("jButton2.text")); // NOI18N
         jButton2.setName("jButton2"); // NOI18N
-
-        jButton3.setText(resourceMap.getString("jButton3.text")); // NOI18N
-        jButton3.setName("jButton3"); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -60,35 +69,80 @@ public class EncryptOrDecrypt extends javax.swing.JFrame {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(49, 49, 49)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addGap(82, 82, 82)
-                        .addComponent(jButton3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(jButton2))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                     .addComponent(jLabel1))
-                .addContainerGap(58, Short.MAX_VALUE))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton3)
-                            .addComponent(jButton1))
-                        .addGap(30, 30, 30))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jButton2)
-                        .addGap(31, 31, 31))))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 32, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1)
+                    .addComponent(jButton2, javax.swing.GroupLayout.PREFERRED_SIZE, 23, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(30, 30, 30))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // selecting Decrypt option
+            Database minor=new Database();
+            ResultSet res;
+            
+            String sql;
+            try 
+            {
+            sql = "SELECT aes,des FROM info WHERE id = (SELECT MAX(id) FROM info)";
+            res = minor.getRS(sql);
+            
+                if(res.next()){
+                    int aes_stat = res.getInt("aes");
+                    int des_stat = res.getInt("des");
+                    if(aes_stat == 1)
+                    {
+                        try{
+                        AESUtility aes_util = new AESUtility();
+                        //aes_util.makeKey();
+                        aes_util.loadKey(in, privateKeyFile);
+                        aes_util.decrypt(out_aes, out_aes_dec);
+                        JOptionPane.showMessageDialog(null,"AES Dencryption Successful");
+                        }
+                        catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    if(des_stat == 1)
+                    {
+                        try{
+                            DESUtility des_util = new DESUtility();
+                            FileInputStream fis2 = new FileInputStream(out_des);
+                            FileOutputStream fos2 = new FileOutputStream(out_des_dec);
+                            des_util.decrypt(key, fis2, fos2);
+                            JOptionPane.showMessageDialog(null,"DES Decryption Successful");
+                            }
+                            catch (Throwable e) {
+                                    e.printStackTrace();
+                            }
+                        
+                    }
+                }
+                else{
+                    JOptionPane.showMessageDialog(null, "Connection Error!");
+                }
+            }
+            catch(SQLException e)
+            {
+                System.out.println(e);
+            }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -131,13 +185,12 @@ public class EncryptOrDecrypt extends javax.swing.JFrame {
     @Action
     public void callNext()
     {
-        new PenDriveList().setVisible(true);
+        new AES_DES().setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }
